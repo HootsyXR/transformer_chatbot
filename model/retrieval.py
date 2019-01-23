@@ -57,9 +57,9 @@ def make_documents(file, index_name):
 class RetrievalBot:
     INDEX_NAME = 'dialogs'
 
-    def __init__(self, update_index=False, raw_index_path=None):
+    def __init__(self, update_index=False, raw_index_path=None, elasticsearch_host='localhost'):
         # todo: set host
-        self.es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+        self.es = Elasticsearch([{'host': elasticsearch_host, 'port': 9200}])
 
         if not self.es.ping():
             raise ValueError('Connection to retrieval server is failed.')

@@ -73,10 +73,10 @@ def detokenize(text):
 
 
 class ReplyChecker:
-    def __init__(self, max_len=10, theshold=0.8, correct_generative=True, split_into_sentences=True):
+    def __init__(self, max_len=10, theshold=0.8, correct_generative=True, split_into_sentences=True, retrieval_host='localhost'):
         self._replies = deque([], maxlen=max_len)
         self._theshold = theshold
-        self._retrieval = RetrievalBot()
+        self._retrieval = RetrievalBot(elasticsearch_host=retrieval_host)
         self._info = None
         self._max_len = max_len
 

@@ -16,6 +16,9 @@ class TransformerAgent(Agent):
     @staticmethod
     def add_cmdline_args(argparser):
         agent_args = argparser.add_argument_group('Agent parameters')
+        agent_args.add_argument('-rhost', '--retrieval_host', default='localhost', 
+                                help='Allows specifying the retrieval server host or IP address.'
+                                     ' Defaults to localhost.')
         agent_args.add_argument('-gpu', '--gpu', type=int, default=-1, 
                                 help='which GPU to use')
         agent_args.add_argument('--no-cuda', type=bool, default=False,
@@ -75,9 +78,11 @@ class TransformerAgent(Agent):
         torch.set_grad_enabled(False)
 
         model_config = get_model_config()
+        self.retrieval_host = self.opt['retrieval_host']
         self.vocab = BPEVocab.from_files(model_config.bpe_vocab_path, model_config.bpe_codes_path)
         self.reply_checker = ReplyChecker(correct_generative=self.opt['correct_generative'],
-                                          split_into_sentences=self.opt['split_into_sentences'])
+                                          split_into_sentences=self.opt['split_into_sentences'],
+                                          retrieval_host=self.retrieval_host)
 
         self.replace_repeat = self.opt['replace_repeat']
         self.replace_ngram = self.opt['replace_ngram']
@@ -126,7 +131,7 @@ class TransformerAgent(Agent):
                                           annealing=self.opt['annealing'],
                                           diversity_coef=self.opt['diversity_coef'],
                                           diversity_groups=self.opt['diversity_groups'])
-            self.retrieval_bot = RetrievalBot()
+            self.retrieval_bot = RetrievalBot(elasticsearch_host=self.retrieval_host)
 
             state_dict = torch.load(model_config.checkpoint_path, map_location=lambda storage, loc: storage)
             if 'model' in state_dict:
